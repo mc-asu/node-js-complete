@@ -2,6 +2,8 @@ EJS
 <p> <%= name % >
 Using normal HTML and plain Javascript in your templates
 npm i --save ejs
+app.set('view engine', 'ejs') 
+http://ejs.co/#docs
 
 Pug ( Jade )
 p #{name}
@@ -20,5 +22,5 @@ const expressHbs = require('express-handlebars')
 app.engine('hbs', expressHbs())
 app.set('view engine', 'hbs')
 app.set('views', 'views')
-
+ https://handlebarsjs.com/
 Due to a (temporary) breaking change introduced by the library authors (of the package we'll install in the next lecture), make sure you run npm install --save express-handlebars@3.0 before you start using that package in the next lecture.

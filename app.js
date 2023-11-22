@@ -2,16 +2,16 @@ const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
 
-const expressHbs = require('express-handlebars')
+// const expressHbs = require('express-handlebars')
 
 const app = express()
 
 // set any values globally //sharing data
-app.engine('hbs', expressHbs({layoutsDir: 'views/layouts/', defaultLayout: 'main-layout', extname:'hbs'}))
-app.set('view engine', 'hbs') // use handlebars template engine
+// app.engine('hbs', expressHbs({layoutsDir: 'views/layouts/', defaultLayout: 'main-layout', extname:'hbs'}))
+// app.set('view engine', 'hbs') // use handlebars template engine
 
 //Define engine as the engine isnt installed yet unlike pug
-
+app.set('view engine', 'ejs') // use ejs template engine
 
 // app.set('view engine', 'pug') // use pug template engine
 app.set('views', 'views') // where to find these template

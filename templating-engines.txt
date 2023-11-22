@@ -1,0 +1,15 @@
+EJS
+<p> <%= name % >
+Using normal HTML and plain Javascript in your templates
+npm i --save ejs
+
+Pug ( Jade )
+p #{name}
+Use minimal HTML and custom template language
+npm i --save pug
+https://pugjs.org/api/getting-started.html
+
+Handlebars
+<p>{{ name }}</p>
+Using normal HTML and custom template language
+npm i --save express-handlebars

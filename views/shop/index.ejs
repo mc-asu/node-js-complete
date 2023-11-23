@@ -14,7 +14,9 @@
                             <h1 class="product__title"><%= product.title %></h1>
                         </header>
                         <div class="card__image">
-                            <img src="<%= product.imageUrl %>"
+                            <img 
+                                onerror="this.src='https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg'" 
+                                src="<%= product.imageUrl %>"
                                 alt="<%= product.title %>">
                         </div>
                         <div class="card__content">
@@ -22,7 +24,8 @@
                             <p class="product__description"><%= product.description %></p>
                         </div>
                         <div class="card__actions">
-                            <button class="btn">Add to Cart</button>
+                            <a href="/products/<%= product.id %>" class="btn">Details</a>
+                            <%- include('../includes/add-to-cart.ejs', {product: product}) %>
                         </div>
                     </article>
                 <% } %>

@@ -1,0 +1,61 @@
+//  Database Definition
+
+const Sequelize = require('sequelize').Sequelize;
+const sequelize = new Sequelize('node-complete', 'root', 'rootpassword', {
+    dialect: 'mysql',
+    host: 'localhost'
+})
+
+module.exports = sequelize
+
+//  Model Definition: Product example
+
+const Sequelize = require('sequelize')
+
+const sequelize = require('../util/database')
+
+const Product = sequelize.define('product', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true
+  },
+  title: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  price: {
+    type: Sequelize.DOUBLE,
+    allowNull: false,
+  },
+  description: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  imageUrl: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  }
+});
+
+module.exports = Product
+
+// app.js 
+
+//associations
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' })
+User.hasMany(Product)
+
+
+// sync, set to {force: true}, to reset the tables, only dev
+sequelize.sync()
+    .then((result) => {
+    // console.log(result)
+    app.listen(3000);
+}).catch(err => console.log(err))
+
+  
+Find single item:
+  Product.findByPk(id).then().catch() returns an Object
+  Product.findAll({where: {id: prodId}}) returns an array

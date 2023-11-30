@@ -12,7 +12,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  Product.findByPk(prodId).then((product) => {
+  Product.findById(prodId).then((product) => {
     res.render('shop/product-detail', {
       product: product,
       pageTitle: product.title,
@@ -63,7 +63,7 @@ exports.postCart = (req, res, next) => {
       return product
     }
     
-    return Product.findByPk(prodId)
+    return Product.findById(prodId)
 
   }).then((product) => {
     return fetchedCart.addProduct(product, { through: { quantity: newQuantity } })

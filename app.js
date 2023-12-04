@@ -1,39 +1,75 @@
-const path = require('path');
+const path = require('path')
 
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require('express')
+const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const session = require('express-session')
+const MongoDBStore = require('connect-mongodb-session')(session)
 
-const errorController = require('./controllers/error');
-
-const app = express();
-
-app.set('view engine', 'ejs');
-app.set('views', 'views');
-
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+const errorController = require('./controllers/error')
 const User = require('./models/user')
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public'))); 
+const username = 'githubcreds'
+const password = 'githubcreds'
+const MONGODB_URI = `mongodb+srv://${username}:${password}@nodejscourse.tdqni9o.mongodb.net/shop`
+
+const app = express()
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions',
+})
+
+app.set('view engine', 'ejs')
+app.set('views', 'views')
+
+const adminRoutes = require('./routes/admin')
+const shopRoutes = require('./routes/shop')
+const authRoutes = require('./routes/auth')
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.static(path.join(__dirname, 'public'))) 
+app.use(session({ 
+    secret: 'my secret', 
+    resave: false ,
+    saveUninitialized: false,
+    store: store
+}))
 
 app.use((req, res, next) => {
-    User.findById('656dae0134057beabb4527d6').then(user => {
-        req.user = user
-        next()
+    console.log(req.session)
+    if(!req.session.user) {
+        return next()
+    }
+    User.findById(req.session.user._id)
+        .then(user => {
+            req.user = user
+            next()
     }).catch(err => console.log(err))
 })
 
-app.use('/admin', adminRoutes);
-app.use(shopRoutes);
 
-app.use(errorController.get404); 
+app.use('/admin', adminRoutes)
+app.use(shopRoutes)
+app.use(authRoutes)
 
-const username = 'manuelcasupanan'
-const password = 'BTCsgCW0T7JHiXuW'
-const mongoDbUrl = `mongodb+srv://${username}:${password}@nodejscourse.tdqni9o.mongodb.net/shop?retryWrites=true&w=majority`
-mongoose.connect(mongoDbUrl)
+// app.use((req, res, next) => {
+// 	const cookies = req.get('Cookie').split(' ')
+// 	res.locals.isAuthenticated = false
+// 	cookies.forEach(cookie => {
+// 		const key = cookie.split('=')[0]
+// 		if (key === 'loggedIn') {
+// 			const value = cookie.split('=')[1]
+// 			if (value === 'true') {
+// 				res.locals.isAuthenticated = true
+// 			}
+// 		}
+// 	})
+// 	next()
+// })
+
+app.use(errorController.get404) 
+
+mongoose.connect(MONGODB_URI)
     .then(result => {
         User.findOne().then(user => {
             if(!user) {

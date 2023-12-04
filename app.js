@@ -2,9 +2,9 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose')
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect
 
 const app = express();
 
@@ -19,8 +19,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.use((req, res, next) => {
-    User.findById('6568f66fd32f83aac8f875da').then(user => {
-        req.user = new User(user.name, user.email, user.cart, user._id)
+    User.findById('656dae0134057beabb4527d6').then(user => {
+        req.user = user
         next()
     }).catch(err => console.log(err))
 })
@@ -30,18 +30,23 @@ app.use(shopRoutes);
 
 app.use(errorController.get404); 
 
-mongoConnect(() => {
-    // const user = new User('manuelcasupanan', 'mc@gmail.com')
-    // user.save().then(() => {
-    //     console.log('User created')
-    // }).catch(err => {
-    //     console.log(err)
-    // })
-    // const user2 = new User('jasmindreistein', 'jd@gmail.com')
-    // user2.save().then(() => {
-    //     console.log('User created')
-    // }).catch(err => {
-    //     console.log(err)
-    // })
-    app.listen(3000)
-})
+const username = 'manuelcasupanan'
+const password = 'BTCsgCW0T7JHiXuW'
+const mongoDbUrl = `mongodb+srv://${username}:${password}@nodejscourse.tdqni9o.mongodb.net/shop?retryWrites=true&w=majority`
+mongoose.connect(mongoDbUrl)
+    .then(result => {
+        User.findOne().then(user => {
+            if(!user) {
+                const user = new User({
+                    name: 'Manuel',
+                    email: 'mc@gmail.de',
+                    cart: {
+                        items: []
+                    }
+                })
+                user.save()
+            }
+        })
+        app.listen(3000)
+    }).catch(err => console.log(err))
+ 

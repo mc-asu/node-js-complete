@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-
+const User = require("../models/user");
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -11,11 +11,17 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const { title, price, description, imageUrl } = req.body
-  const product = new Product(title, price, description, imageUrl)
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl,
+    userId: req.user
+  })
   product.save().then(result => {
     console.log(result)
     console.log('Product created')
-    res.redirect('/');
+    res.redirect('/admin/products');
   }).catch(err => console.log(err))
 };
 
@@ -46,16 +52,25 @@ exports.postEditProduct = (req, res, next) => {
     imageUrl,
     description
   } = req.body
-  const product = new Product(title, price, description, imageUrl, prodId)
-  product.save()
-    .then(result => {
+
+  Product.findById(prodId).then(product => {
+    product.title = title
+    product.price = price
+    product.imageUrl = imageUrl
+    product.description = description
+    return product.save()
+  }).then(result => {
     console.log('Updated product')
     res.redirect('/admin/products')
   }).catch(err => console.log(err))
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll().then(products => {
+  Product.find()
+  // .select('title price -_id')
+  // .populate('userId', 'name')
+  .then(products => {
+    console.log(products)
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
@@ -66,8 +81,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId).then(() => {
-    console.log('Product deleted')
-    res.redirect('/admin/products');
-  }).catch(err => console.log(err))
+  Product.findByIdAndDelete(prodId)
+    .then(() => {
+      return User.updateMany(
+        {},
+        { $pull: { "cart.items": { productId: prodId } } }
+      )
+    }).then(() => {
+      console.log("Deleted product and removed it from every cart !");
+      res.redirect('/admin/products');
+    }).catch(err => console.log(err))
 };

@@ -1,7 +1,9 @@
 const { validationResult } = require('express-validator')
+const errorHandler = require('../util/errorHandler')
 
 const Product = require('../models/product')
 const User = require("../models/user")
+
 
 exports.getAddProduct = (req, res, next) => {
   if(!req.session.isLoggedIn) {
@@ -46,7 +48,7 @@ exports.postAddProduct = (req, res, next) => {
   product.save().then(result => {
     console.log('Product created')
     res.redirect('/admin/products')
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.getEditProduct = (req, res, next) => {
@@ -68,7 +70,7 @@ exports.getEditProduct = (req, res, next) => {
       errorMessage: null,
       validationErrors: [],
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.postEditProduct = (req, res, next) => {
@@ -111,7 +113,7 @@ exports.postEditProduct = (req, res, next) => {
       console.log('Updated product')
       res.redirect('/admin/products')
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.getProducts = (req, res, next) => {
@@ -125,7 +127,7 @@ exports.getProducts = (req, res, next) => {
       pageTitle: 'Admin Products',
       path: '/admin/products',
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -139,5 +141,5 @@ exports.postDeleteProduct = (req, res, next) => {
     }).then(() => {
       console.log("Deleted product and removed it from every cart !")
       res.redirect('/admin/products')
-    }).catch(err => console.log(err))
+    }).catch(err => errorHandler(err))
 }

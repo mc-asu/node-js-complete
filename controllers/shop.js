@@ -1,5 +1,6 @@
 const Product = require('../models/product')
 const Order = require('../models/order')
+const errorHandler = require('../util/errorHandler')
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -9,7 +10,7 @@ exports.getProducts = (req, res, next) => {
       pageTitle: 'All Products',
       path: '/products',
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.getProduct = (req, res, next) => {
@@ -20,7 +21,7 @@ exports.getProduct = (req, res, next) => {
       pageTitle: product.title,
       path: '/products',
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.getIndex = (req, res, next) => {
@@ -30,7 +31,7 @@ exports.getIndex = (req, res, next) => {
       pageTitle: 'Shop',
       path: '/',
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 } 
 
 exports.getCart = (req, res, next) => {
@@ -43,7 +44,7 @@ exports.getCart = (req, res, next) => {
           pageTitle: 'Your Cart',
           products: products,
         })
-      }).catch(err => console.log(err))
+      }).catch(err => errorHandler(err))
 }
 
 exports.postCart = (req, res, next) => {
@@ -53,7 +54,7 @@ exports.postCart = (req, res, next) => {
     return req.user.addToCart(product)
   }).then(result => {
     res.redirect('/cart')
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 
 }
 
@@ -61,7 +62,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId
   req.user.removeFromCart(prodId).then((result) => {
     res.redirect('/cart')
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 }
 
 exports.postOrder = (req, res, next) => {
@@ -84,7 +85,7 @@ exports.postOrder = (req, res, next) => {
       return req.user.clearCart()
    }).then(() => {
     res.redirect('/orders')
-   }).catch(err => console.log(err))
+   }).catch(err => errorHandler(err))
 }
 
 exports.getOrders = (req, res, next) => {
@@ -95,6 +96,6 @@ exports.getOrders = (req, res, next) => {
       pageTitle: 'Your Orders',
       orders: orders,
     })
-  }).catch(err => console.log(err))
+  }).catch(err => errorHandler(err))
 
 }

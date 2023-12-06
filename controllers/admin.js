@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator')
 const errorHandler = require('../util/errorHandler')
 
+const fileHelper = require('../util/file')
+
 const Product = require('../models/product')
 const User = require("../models/user")
 
@@ -123,6 +125,7 @@ exports.postEditProduct = (req, res, next) => {
     product.title = title
     product.price = price
     if(image) {
+      fileHelper.deleteFile(product.imageUrl)
       product.imageUrl = image.path
     }
     product.description = description
@@ -149,14 +152,21 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId
-  Product.deleteOne({ _id: prodId, userId: req.user._id })
-    .then(() => {
-      return User.updateMany(
-        {},
-        { $pull: { "cart.items": { productId: prodId } } }
-      )
-    }).then(() => {
-      console.log("Deleted product and removed it from every cart !")
-      res.redirect('/admin/products')
-    }).catch(err => errorHandler(err, next))
+  Product.findById(prodId).then(product => {
+    if(!product) {
+      return next(new Error('Product not found.'))
+    }
+    fileHelper.deleteFile(product.imageUrl)
+    return Product.deleteOne({ _id: prodId, userId: req.user._id })
+  })
+  .then(() => {
+    return User.updateMany(
+      {},
+      { $pull: { "cart.items": { productId: prodId } } }
+    )
+  }).then(() => {
+    console.log("Deleted product and removed it from every cart !")
+    res.redirect('/admin/products')
+  }).catch(err => errorHandler(err, next))
+    
 }

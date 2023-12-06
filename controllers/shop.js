@@ -2,6 +2,9 @@ const Product = require('../models/product')
 const Order = require('../models/order')
 const errorHandler = require('../util/errorHandler')
 
+const fs = require('fs')
+const path = require('path')
+
 exports.getProducts = (req, res, next) => {
   Product.find()
   .then(products => {
@@ -10,7 +13,7 @@ exports.getProducts = (req, res, next) => {
       pageTitle: 'All Products',
       path: '/products',
     })
-  }).catch(err => errorHandler(err))
+  }).catch(err => errorHandler(err, next))
 }
 
 exports.getProduct = (req, res, next) => {
@@ -21,7 +24,7 @@ exports.getProduct = (req, res, next) => {
       pageTitle: product.title,
       path: '/products',
     })
-  }).catch(err => errorHandler(err))
+  }).catch(err => errorHandler(err, next))
 }
 
 exports.getIndex = (req, res, next) => {
@@ -31,7 +34,7 @@ exports.getIndex = (req, res, next) => {
       pageTitle: 'Shop',
       path: '/',
     })
-  }).catch(err => errorHandler(err))
+  }).catch(err => errorHandler(err, next))
 } 
 
 exports.getCart = (req, res, next) => {
@@ -44,7 +47,7 @@ exports.getCart = (req, res, next) => {
           pageTitle: 'Your Cart',
           products: products,
         })
-      }).catch(err => errorHandler(err))
+      }).catch(err => errorHandler(err, next))
 }
 
 exports.postCart = (req, res, next) => {
@@ -54,7 +57,7 @@ exports.postCart = (req, res, next) => {
     return req.user.addToCart(product)
   }).then(result => {
     res.redirect('/cart')
-  }).catch(err => errorHandler(err))
+  }).catch(err => errorHandler(err, next))
 
 }
 
@@ -62,7 +65,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId
   req.user.removeFromCart(prodId).then((result) => {
     res.redirect('/cart')
-  }).catch(err => errorHandler(err))
+  }).catch(err => errorHandler(err, next))
 }
 
 exports.postOrder = (req, res, next) => {
@@ -85,7 +88,7 @@ exports.postOrder = (req, res, next) => {
       return req.user.clearCart()
    }).then(() => {
     res.redirect('/orders')
-   }).catch(err => errorHandler(err))
+   }).catch(err => errorHandler(err, next))
 }
 
 exports.getOrders = (req, res, next) => {
@@ -96,6 +99,35 @@ exports.getOrders = (req, res, next) => {
       pageTitle: 'Your Orders',
       orders: orders,
     })
-  }).catch(err => errorHandler(err))
+  }).catch(err => errorHandler(err, next))
+
+}
+
+exports.getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId
+  Order
+    .findById(orderId)
+    .then(order => {
+      if(!order) {
+        return next(new Error('No order found'))
+      }
+      if(order.user.userId.toString() !== req.user._id.toString()) {
+         return next(new Error('Unauthorized'))
+      }
+      const invoiceName = `invoice-${orderId}.pdf`
+      const invoicePath = path.join('data', 'invoices', invoiceName)
+     
+      fs.readFile(invoicePath, (err, data) => { 
+        if(err) {
+          return next(err)
+        }
+    
+        res.setHeader('Content-Type', 'application/pdf')
+        //inline or attachment
+        res.setHeader('Content-Disposition', `inline; filename="${invoiceName}"`)
+        res.send(data)
+      })
+    })
+    .catch(err => errorHandler(err, next))
 
 }

@@ -26,8 +26,6 @@ router.post(
             .isLength({ min: 3 })
             .withMessage('Title need at least 3 characters and must be alphanumeric.')
             .trim(),
-        body('imageUrl')
-            .isURL(),
         body('price')
             .isFloat(),
         body('description')
@@ -45,8 +43,6 @@ router.post(
             .isString()
             .isLength({ min: 3 })
             .trim(),
-        body('imageUrl')
-            .isURL(),
         body('price')
             .isFloat(),
         body('description')

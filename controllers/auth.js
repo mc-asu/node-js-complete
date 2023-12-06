@@ -88,9 +88,9 @@ exports.postLogin = (req, res, next) => {
                     },
                     validationErrors: []
                 })
-            }).catch(err => errorHandler(err))
+            }).catch(err => errorHandler(err, next))
 
-    }).catch(err => errorHandler(err))
+    }).catch(err => errorHandler(err, next))
 }
 
 exports.getSignup = (req, res, next) => {
@@ -148,7 +148,7 @@ exports.postSignup = (req, res, next) => {
                     from: userEmail,
                     subject: 'Signup succeeded!',
                     html: '<h1> You successfully signed up! </h1>'
-                }).catch(err => errorHandler(err))
+                }).catch(err => errorHandler(err, next))
             })
 }
 
@@ -201,7 +201,7 @@ exports.postReset = (req, res, next) => {
                     <p> Click this <a href="https://localhost:3000/reset/${token}"> link </a> to set a new password </p>
                     `
             })
-        }).catch(err => errorHandler(err))
+        }).catch(err => errorHandler(err, next))
     })
 }
 
@@ -223,7 +223,7 @@ exports.getNewPassword = (req, res, next) => {
                 passwordToken: token
             })
         })
-        .catch(err => errorHandler(err))
+        .catch(err => errorHandler(err, next))
 
 }
 
@@ -244,5 +244,5 @@ exports.postNewPassword = (req, res, next) => {
         }).then((result) => {
             res.redirect('/login')
         })
-        .catch(err => errorHandler(err))
+        .catch(err => errorHandler(err, next))
 }

@@ -138,35 +138,21 @@ exports.postEditProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-  const page = +req.query.page || 1 
-  let totalItems
-  // Product.find({ userId: req.user._id})
   // .select('title price -_id')
   // .populate('userId', 'name')
+
   Product.find({ userId: req.user._id})
-  .countDocuments()
-  .then(numProducts => {
-    totalItems = numProducts
-    return Product.find({ userId: req.user._id})
-      .skip((page - 1 )* ITEMS_PER_PAGE)
-      .limit(ITEMS_PER_PAGE)
-  }).then(products => {
+  .then(products => {
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
       path: '/admin/products',
-      currentPage: page,
-      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-      hasPreviousPage: page > 1,
-      nextPage: page + 1,
-      previousPage: page - 1,
-      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
     })
   }).catch(err => errorHandler(err, next))
 }
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId
+exports.deleteProduct = (req, res, next) => {
+  const prodId = req.params.productId
   Product.findById(prodId).then(product => {
     if(!product) {
       return next(new Error('Product not found.'))
@@ -181,7 +167,10 @@ exports.postDeleteProduct = (req, res, next) => {
     )
   }).then(() => {
     console.log("Deleted product and removed it from every cart !")
-    res.redirect('/admin/products')
-  }).catch(err => errorHandler(err, next))
+    res.status(200).json({ message: 'Success' })
+  }).catch(err => {
+    res.status(500).json({ message: 'Deleting product failed' })
+    // errorHandler(err, next)
+  })
     
 }

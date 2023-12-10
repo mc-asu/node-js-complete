@@ -8,6 +8,8 @@ const fs = require('fs')
 const path = require('path')
 
 const ITEMS_PER_PAGE = 1
+const STRIPE_SECRET_KEY = ''
+const stripe = require("stripe")(STRIPE_SECRET_KEY)
 
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1 
@@ -125,6 +127,29 @@ exports.postOrder = (req, res, next) => {
    }).catch(err => errorHandler(err, next))
 }
 
+exports.getCheckoutSuccess = (req, res, next) => {
+  req.user
+    .populate('cart.items.productId')
+    .then(user => {
+      const products = user.cart.items.map(i => {
+        return { quantity: i.quantity, product: {...i.productId._doc}}
+      })
+      const order = new Order({
+        user: {
+          email: req.user.email,
+          userId: req.user,
+        },
+        products: products
+      })
+      return order.save()
+    })
+    .then(result => {
+      return req.user.clearCart()
+   }).then(() => {
+    res.redirect('/orders')
+   }).catch(err => errorHandler(err, next))
+}
+
 exports.getOrders = (req, res, next) => {
   Order.find({'user.userId': req.user._id})
   .then(orders => {
@@ -191,4 +216,47 @@ exports.getInvoice = (req, res, next) => {
     })
     .catch(err => errorHandler(err, next))
 
+}
+
+exports.getCheckout = (req, res, next) => {
+  let products
+  let total = 0
+  req.user
+    .populate('cart.items.productId')
+    .then(user => {
+      products = user.cart.items
+      products.forEach(p => {
+        total += p.quantity * p.productId.price
+      })
+
+      return stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: products.map((p) => {
+          return {
+            quantity: p.quantity,
+            price_data: {
+              currency: "usd",
+              unit_amount: p.productId.price * 100,
+              product_data: {
+                name: p.productId.title,
+                description: p.productId.description,
+              },
+            },
+          };
+        }),
+        customer_email: req.user.email,
+        success_url: req.protocol + "://" + req.get("host") + "/checkout/success",
+        cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
+      });
+    })
+    .then((session) => {
+      res.render("shop/checkout", {
+        path: "/checkout",
+        pageTitle: "Checkout",
+        products: products,
+        totalSum: total,
+        sessionId: session.id,
+      });
+    }).catch(err => errorHandler(err, next))
 }

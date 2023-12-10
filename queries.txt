@@ -20,3 +20,4 @@ db.execute('SELECT * FROM products')
 .catch()
 
 
+https://stackoverflow.com/questions/3799193/mysql-data-best-way-to-implement-paging

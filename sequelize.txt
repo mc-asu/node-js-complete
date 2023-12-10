@@ -61,3 +61,5 @@ Find single item:
   Product.findAll({where: {id: prodId}}) returns an array
 
 http://docs.sequelizejs.com/
+
+https://sequelize.org/master/manual/model-querying-basics.html

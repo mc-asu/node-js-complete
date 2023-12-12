@@ -161,6 +161,7 @@ exports.deleteProduct = (req, res, next) => {
     return Product.deleteOne({ _id: prodId, userId: req.user._id })
   })
   .then(() => {
+    // clearing up relations
     return User.updateMany(
       {},
       { $pull: { "cart.items": { productId: prodId } } }

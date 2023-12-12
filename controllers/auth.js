@@ -69,7 +69,7 @@ exports.postLogin = (req, res, next) => {
 
         bcrypt
             .compare(password, user.password)
-            .then((doMatch) => {
+            .then((doMatch) => { 
                 if (doMatch) {
                     req.session.isLoggedIn = true
                     req.session.user = user

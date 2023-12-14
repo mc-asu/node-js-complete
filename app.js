@@ -12,9 +12,8 @@ const multer = require('multer')
 const errorController = require('./controllers/error')
 const User = require('./models/user')
 
-const username = 'githubcreds'
-const password = 'githubcreds'
-const MONGODB_URI = `mongodb+srv://${username}:${password}@nodejscourse.tdqni9o.mongodb.net/shop`
+console.log(process.env.NODE_ENV)
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@nodejscourse.tdqni9o.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`
 
 const app = express()
 const store = new MongoDBStore({
@@ -106,6 +105,6 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(MONGODB_URI)
     .then(result => {
-        app.listen(3000)
+        app.listen(process.env.PORT || 3000)
     }).catch(err => console.log(err))
  

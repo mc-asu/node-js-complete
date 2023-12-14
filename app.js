@@ -1,6 +1,12 @@
 const path = require('path')
+const fs = require('fs')
+// const https = require('https')
 
 const express = require('express')
+const helmet = require('helmet')
+const morgan = require('morgan')
+const compression = require('compression')
+
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const session = require('express-session')
@@ -12,9 +18,8 @@ const multer = require('multer')
 const errorController = require('./controllers/error')
 const User = require('./models/user')
 
-const username = 'githubcreds'
-const password = 'githubcreds'
-const MONGODB_URI = `mongodb+srv://${username}:${password}@nodejscourse.tdqni9o.mongodb.net/shop`
+console.log(process.env.NODE_ENV)
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@nodejscourse.tdqni9o.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`
 
 const app = express()
 const store = new MongoDBStore({
@@ -24,6 +29,10 @@ const store = new MongoDBStore({
 
 //csrf Middleware
 const csrfProtection = csrf()
+
+// read in files for ssl
+// const privateKey = fs.readFileSync('server.key')
+// const certificate = fs.readFileSync('server.cert')
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -48,6 +57,15 @@ app.set('views', 'views')
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 const authRoutes = require('./routes/auth')
+
+const accessLogStream = fs.createWriteStream(
+    path.join(__dirname, 'access.log'), 
+    {flags: 'a'}
+)
+
+app.use(helmet())
+app.use(compression())
+app.use(morgan('combined', { stream: accessLogStream }))
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter}).single('image'))
@@ -106,6 +124,14 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(MONGODB_URI)
     .then(result => {
-        app.listen(3000)
+        //if you want to sign ssl manually
+        // https.createServer(
+        //     {
+        //         key: privateKey,
+        //         cert: certificate
+        //     }, 
+        //     app
+        // ).listen(process.env.PORT || 3000)
+        app.listen(process.env.PORT || 3000)
     }).catch(err => console.log(err))
  

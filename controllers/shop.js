@@ -8,8 +8,7 @@ const fs = require('fs')
 const path = require('path')
 
 const ITEMS_PER_PAGE = 1
-const STRIPE_SECRET_KEY = ''
-const stripe = require("stripe")(STRIPE_SECRET_KEY)
+const stripe = require("stripe")(process.env.STRIPE_KEY)
 
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1 

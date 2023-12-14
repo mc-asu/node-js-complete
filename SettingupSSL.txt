@@ -1,0 +1,6 @@
+on MAC: execute on terminal to create own certificate, which is still isn't trusted, but fine for testing
+openssl req -nodes -new -x509 -keyout server.key -out server.cert
+
+this will generate server.cert and server.key after entering the needed data
+
+KEEP IN MIND YOU NEED A PROVIDER FOR THIS AND NOT A SELF SIGNED SSL

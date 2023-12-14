@@ -1,0 +1,9 @@
+{
+    "env": {
+     "MONGO_USER": "githubcreds",
+     "MONGO_PASSWORD": "githubcreds",
+     "MONGO_DEFAULT_DATABASE": "shop",
+     "PORT": 3000,
+     "STRIPE_KEY": "hi"
+    }
+}
